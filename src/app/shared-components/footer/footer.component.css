@@ -1,0 +1,35 @@
+main {
+  background-color: var(--bg-main);
+  display: flex;
+  border-top: 1px solid var(--primary);
+  padding: 50px 20px;
+  gap: 40px;
+}
+
+h4 {
+  margin: 0;
+  color: var(--text-muted);
+  margin-bottom: 30px;
+}
+
+.links a {
+  display: block;
+  width: fit-content;
+  margin-bottom: 10px;
+}
+
+.copyright {
+  margin-top: 49px;
+  color: var(--text-muted);
+}
+
+.wallet-status {
+  width: 100%;
+  overflow-x: scroll;
+}
+
+@media (max-width: 720px) {
+  main {
+    flex-direction: column;
+  }
+}

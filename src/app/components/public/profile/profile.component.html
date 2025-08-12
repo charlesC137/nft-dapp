@@ -1,0 +1,71 @@
+<div class="container">
+  <section class="top">
+    <div class="circle">
+      <label
+        *ngIf="isOwner"
+        for="imageUpload"
+        class="img-container"
+        title="Click to upload"
+      >
+        <img [src]="previewUrl || '../../../assets/default.jpg'" alt="Avatar" />
+      </label>
+
+      <div *ngIf="!isOwner" class="img-container">
+        <img [src]="previewUrl || '../../../assets/default.jpg'" alt="Avatar" />
+      </div>
+
+      <input
+        *ngIf="isOwner"
+        type="file"
+        id="imageUpload"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+        hidden
+      />
+      <span *ngIf="isOwner">YOU</span>
+    </div>
+
+    <div class="details">
+      <div class="address">
+        <span>Wallet Address:</span>{{ routeWalletAddress | shortenAddress }}
+      </div>
+      <button (click)="copyText(routeWalletAddress)">
+        <i class="fas fa-copy"></i>
+      </button>
+    </div>
+  </section>
+
+  <section class="nft-gallery">
+    <h2>NFT Gallery</h2>
+    <div class="filter">
+      <label>Filter By:</label>
+      <select id="filter" [(ngModel)]="selectedFilter" (change)="applyFilter()">
+        <option value="all">All</option>
+        <option value="created">Created</option>
+        <option value="onsale">Listed For Sale</option>
+      </select>
+    </div>
+    <app-nft-grid></app-nft-grid>
+  </section>
+
+  <section class="profile-stats">
+    <h2>Account Activity</h2>
+
+    <div><span>NFTs Owned: </span>100</div>
+    <div><span>NFTs Created: </span>33</div>
+    <div><span>NFTs Sold: </span>75</div>
+    <div><span>NFTs Bought: </span>56</div>
+    <div><span>ETH Earned: </span>1.056 ETH</div>
+    <div><span>ETH Spent: </span>0.032 ETH</div>
+
+    <div class="recent-activity">
+      <div><i class="fas fa-cubes"></i> Minted “Dream Ape #02”</div>
+      <div>
+        <i class="fas fa-cart-shopping"></i> Sold “Pixel Skull” for 0.8 ETH
+      </div>
+      <div>
+        <i class="fas fa-sack-dollar"></i> Bought “Electric Tiger” for 0.25 ETH
+      </div>
+    </div>
+  </section>
+</div>

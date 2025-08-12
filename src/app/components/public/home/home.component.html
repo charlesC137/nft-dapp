@@ -1,0 +1,43 @@
+<div class="container">
+  <section class="hero-section">
+    <h1>Discover, Create & Sell Unique NFTs</h1>
+    <h3>Own digital art with just your wallet. No sign-up required.</h3>
+    <div class="cta-buttons">
+      <button class="glassy-button" routerLink="/explore">Explore NFTs</button>
+      <button *ngIf="isConnected" class="glassy-button" routerLink="/create">
+        Create NFTs
+      </button>
+      <button *ngIf="!isConnected" class="glassy-button">Connect Wallet</button>
+    </div>
+  </section>
+
+  <section class="featured">
+    <h2>Featured NFTs</h2>
+    <div class="filter">
+      <label>Filter By:</label>
+      <select id="filter" [(ngModel)]="selectedFilter" (change)="applyFilter()">
+        <option value="recent">Recently Minted</option>
+        <option value="popular">Most Viewed</option>
+        <option value="onsale">Listed For Sale</option>
+      </select>
+    </div>
+    <app-nft-grid></app-nft-grid>
+    <button class="glassy-button ft-btn" routerLink="/explore">
+      Explore More NFTs
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </section>
+
+  <section class="description">
+    <h2>How It Works</h2>
+    <div class="icons">
+      <div><i class="fas fa-link"></i> <span>Connect Your Wallet</span></div>
+      <div><i class="fas fa-plus"></i> <span>Create Your NFT</span></div>
+      <div>
+        <i class="fas fa-money-bill-wave"></i> <span>Buy And Sell NFTs</span>
+      </div>
+    </div>
+
+    <a routerLink="/create">Get Started</a>
+  </section>
+</div>

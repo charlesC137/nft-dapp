@@ -1,0 +1,20 @@
+<main>
+  <div class="links">
+    <h4>Links</h4>
+    <a routerLink="/explore">Explore NFTs</a>
+    <a routerLink="/create">Create An NFT</a>
+    <a routerLink="/about">About</a>
+    <a routerLink="/terms">Terms And Conditions</a>
+  </div>
+
+  <div class="wallet-status">
+    <h4>Wallet Connection Status</h4>
+    Connected to address ~ {{ contractSrv.walletAddress$ | async }}
+  </div>
+
+  <div class="site-details">
+    <div class="copyright">
+      &copy; {{ currentYear }} C.C NFT. All rights reserved.
+    </div>
+  </div>
+</main>

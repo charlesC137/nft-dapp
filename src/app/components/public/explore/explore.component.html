@@ -1,0 +1,69 @@
+<div class="container">
+  <section class="hero-section">
+    <h1>Explore NFTs</h1>
+    <h3>
+      Discover unique NFTs created by top digital minds. Trade, collect, and
+      flex — all from your wallet. Built on-chain. Owned by you. Forever.
+    </h3>
+  </section>
+
+  <section class="filter-section">
+    <div class="filter">
+      <button class="glassy-button">All</button>
+      <button class="glassy-button">Sold</button>
+      <button class="glassy-button">For Sale</button>
+      <button class="glassy-button active">
+        <i class="fas fa-music"></i> Art
+      </button>
+      <button class="glassy-button">
+        <i class="fas fa-gem"></i> Collectibles
+      </button>
+    </div>
+
+    <select>
+      <option value="explore">Explore</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="newest-first">Newest To Oldest</option>
+      <option value="oldest-first">Oldest To Newest</option>
+    </select>
+
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search for NFT by name..." />
+    </div>
+
+    <div class="extra">
+      <div class="live-count">52 NFTs found</div>
+      <button class="glassy-button">Clear All Filters</button>
+    </div>
+  </section>
+
+  <app-nft-grid></app-nft-grid>
+
+  <section class="func">
+    <div class="loading" *ngIf="isLoading">
+      <div class="skeleton-grid">
+        <div
+          class="skeleton-card"
+          *ngFor="let n of skeletons; let i = index"
+          [style.animationDelay]="i * 0.1 + 's'"
+        ></div>
+      </div>
+      <p class="loading-text">Summoning NFTs from the chain...</p>
+    </div>
+
+    <div
+      class="empty-grid"
+      *ngIf="!isLoading && nfts.length === 0 && !hasError"
+    >
+      <p class="empty-text">No NFTs match your filters.</p>
+      <button class="reset-btn">Reset Filters</button>
+    </div>
+
+    <div class="error" *ngIf="hasError">
+      <p class="error-text">Something broke in the multiverse.</p>
+      <button class="retry-btn">Try Again</button>
+    </div>
+  </section>
+</div>

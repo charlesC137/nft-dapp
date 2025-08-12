@@ -1,0 +1,72 @@
+<div class="container">
+  <div class="image-upload-box" (click)="triggerFileInput()">
+    <input
+      type="file"
+      #fileInput
+      accept="image/*"
+      (change)="onFileSelected($event)"
+      hidden
+    />
+
+    <ng-container *ngIf="!imagePreview">
+      <div class="icon-wrapper">
+        <i class="fas fa-camera"></i>
+        <p>Click or drag to upload image</p>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="imagePreview">
+      <img [src]="imagePreview" alt="NFT Preview" class="preview-image" />
+    </ng-container>
+  </div>
+
+  <form class="nft-form" [formGroup]="nftForm">
+    <label>Name</label>
+    <input formControlName="name" type="text" placeholder="Enter NFT name" />
+
+    <label>Categories/Tags</label>
+    <div class="category-pills" #pillScrollContainer>
+      <label
+        *ngFor="let category of categories"
+        [class.active]="isCategorySelected(category)"
+        class="pill"
+      >
+        <input
+          type="checkbox"
+          [value]="category"
+          (change)="onCheckboxChange($event)"
+          hidden
+        />
+        {{ category }}
+      </label>
+    </div>
+
+    <label>Description</label>
+    <textarea
+      formControlName="description"
+      placeholder="Tell us about your NFT"
+    ></textarea>
+
+    <label class="toggle-label">
+      <span>List for sale after mint?</span>
+      <label class="switch">
+        <input type="checkbox" formControlName="listForSale" />
+        <span class="slider round"></span>
+      </label>
+    </label>
+
+    <ng-container *ngIf="nftForm.get('listForSale')?.value">
+      <label>Price (ETH)</label>
+      <input formControlName="price" type="number" placeholder="0.01" min="0" />
+    </ng-container>
+
+    <button
+      type="button"
+      (click)="createVoucher()"
+      [disabled]="!nftForm.valid || !selectedFile"
+      class="glassy-button"
+    >
+      Mint NFT
+    </button>
+  </form>
+</div>

@@ -1,0 +1,64 @@
+.hero-section .cta-buttons {
+  display: flex;
+  gap: 30px;
+  margin-top: 80px;
+}
+
+.cta-buttons button {
+  width: 50%;
+}
+
+.featured,
+.description {
+  border-top: 0.5px solid var(--primary);
+  margin-top: 80px;
+  padding: 20px 0;
+}
+
+.filter select {
+  margin-left: 10px;
+  border: 0.7px solid var(--primary);
+  border-radius: 3px;
+  padding: 3px 10px;
+}
+
+.ft-btn {
+  width: 50%;
+  margin-top: 10px;
+}
+
+.ft-btn i {
+  margin-left: 10px;
+}
+
+.description .icons {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.icons div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background-color: var(--bg-card);
+  padding: 30px;
+  border-radius: 20px;
+  font-weight: 600;
+  width: 300px;
+}
+
+.description a {
+  font-size: 18px;
+  font-style: italic;
+}
+
+@media (max-width: 450px) {
+  .ft-btn {
+    width: 100%;
+  }
+}

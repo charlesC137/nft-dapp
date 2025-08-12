@@ -1,0 +1,16 @@
+<header class="nav-header">
+  <div class="logo" routerLink="/"><i class="fas fa-house"></i></div>
+
+  <nav class="nav-links">
+    <a routerLink="/explore">Explore</a>
+    <a routerLink="/create">Create</a>
+
+    <a *ngIf="walletAddress" [routerLink]="['/profile', walletAddress]"
+      >Profile</a
+    >
+  </nav>
+
+  <button class="wallet-btn" (click)="login()">
+    {{ walletAddress ? (walletAddress | shortenAddress) : "Connect Wallet" }}
+  </button>
+</header>

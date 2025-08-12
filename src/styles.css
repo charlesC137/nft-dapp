@@ -1,1 +1,174 @@
-/* You can add global styles to this file, and also import other style files */
+@import "ngx-toastr/toastr";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+app-root {
+  width: 100vw;
+  height: 100vh;
+}
+
+:root {
+  --bg-main: #0f0f1a;
+  --bg-card: #1c1c2e;
+
+  --primary: #00e0ff;
+  --secondary: #ff00ff;
+
+  --text: #ffffff;
+  --text-muted: #a3a3b3;
+
+  --success: #1affb2;
+  --error: #ff5c5c;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100vh;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  cursor: default;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-main);
+  color: var(--text);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-size: 14px;
+  color: var(--text);
+  background-color: transparent;
+}
+
+a {
+  cursor: pointer;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 0.5px solid var(--primary);
+  transition: color 0.3s, border-bottom 0.3s;
+}
+
+a:hover {
+  color: var(--primary) !important;
+}
+
+a:visited {
+  color: var(--text);
+}
+
+input,
+select {
+  outline: none;
+  font-size: 14px;
+  border: 1px solid var(--primary);
+  background-color: var(--bg-main);
+  color: var(--text);
+}
+
+select {
+  cursor: pointer;
+}
+
+i {
+  color: var(--text);
+}
+
+span {
+  font-style: italic;
+  margin-right: 10px;
+  color: var(--primary);
+  font-weight: 800;
+}
+
+textarea {
+  outline: none;
+}
+
+.toast-success {
+  border-left: 4px solid var(--success) !important;
+  background-color: var(--bg-card) !important;
+  color: var(--success) !important;
+  box-shadow: 0 0 12px rgba(26, 255, 178, 0.25);
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.toast-error {
+  border-left: 4px solid var(--error) !important;
+  background-color: var(--bg-card) !important;
+  color: var(--error) !important;
+  box-shadow: 0 0 12px rgba(255, 92, 92, 0.2);
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.toast-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text) !important;
+  margin-bottom: 0.25rem;
+}
+
+.toast-message {
+  color: var(--text-muted) !important;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.toast-progress {
+  background-color: var(--primary) !important;
+  height: 3px;
+  opacity: 0.9;
+  border-radius: 2px;
+  box-shadow: 0 0 6px var(--primary);
+}
+
+.glassy-button {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  font-weight: 500;
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 20px rgba(0, 224, 255, 0.1);
+}
+
+.glassy-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 30px rgba(0, 224, 255, 0.2);
+  transform: scale(1.03);
+  border: 1px solid var(--secondary);
+}
+
+.container {
+  padding: 50px;
+  margin-top: 100px;
+}
+
+.hero-section h1 {
+  font-size: 50px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 450px) {
+  .container {
+    padding: 50px 20px;
+  }
+}

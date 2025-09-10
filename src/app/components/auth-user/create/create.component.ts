@@ -52,7 +52,7 @@ export class CreateComponent {
     this.nftForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
-      price: [{ value: '', disabled: true }, [Validators.min(Number.EPSILON)]],
+      price: [{ value: '', disabled: true }, [Validators.min(0.000001)]],
       categories: this.fb.array([]),
       listForSale: [false],
     });
@@ -63,7 +63,7 @@ export class CreateComponent {
         priceControl?.enable();
         priceControl?.setValidators([
           Validators.required,
-          Validators.min(Number.EPSILON),
+          Validators.min(0.000001),
         ]);
       } else {
         priceControl?.reset();
@@ -123,9 +123,15 @@ export class CreateComponent {
       const { name, description, price, categories, listForSale } =
         this.nftForm.value;
 
+      const formattedPrice = Number(price).toLocaleString('fullwide', {
+        useGrouping: false,
+      });
+
       const ethPrice = listForSale
-        ? ethers.parseEther(price.toString()).toString()
+        ? ethers.parseEther(formattedPrice).toString()
         : '0';
+
+      console.log(formattedPrice, ethPrice);
       const formData = new FormData();
       formData.append('price', ethPrice);
       formData.append('image', this.selectedFile);

@@ -4,7 +4,7 @@ import { BrowserProvider, ethers } from 'ethers';
 import { environment as env } from '../../environments/environment';
 import { abi as contractAbi } from '../../assets/abi/NFT.json';
 import { BehaviorSubject } from 'rxjs';
-import { Voucher } from '../interfaces/interfaces';
+import { UnsignedVoucher, Voucher } from '../interfaces/interfaces';
 
 declare let window: any;
 
@@ -68,13 +68,18 @@ export class ContractService {
       );
 
       localStorage.setItem('walletAddress', address);
+
+      await this.switchToHardhat();
     } catch (error) {
       console.error('Wallet connection failed:', error);
       throw new Error('Connection To MetaMask Failed');
     }
   }
 
-  async signAuthMessage(message: string | Voucher, useTypedData = false) {
+  async signAuthMessage(
+    message: string | UnsignedVoucher,
+    useTypedData = false
+  ) {
     try {
       if (!window.ethereum) {
         throw new Error('MetaMask not found');
@@ -139,5 +144,32 @@ export class ContractService {
 
   getWalletAddress() {
     return this.walletAddress.value;
+  }
+
+  async switchToHardhat() {
+    const hardhatChainId = '0x7A69';
+
+    try {
+      await (window as any).ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: hardhatChainId }],
+      });
+    } catch (switchError: any) {
+      if (switchError.code === 4902) {
+        await (window as any).ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: hardhatChainId,
+              chainName: 'Hardhat Local',
+              rpcUrls: ['http://127.0.0.1:8545'],
+              nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+            },
+          ],
+        });
+      } else {
+        console.error(switchError);
+      }
+    }
   }
 }

@@ -57,7 +57,12 @@
 
     <ng-container *ngIf="nftForm.get('listForSale')?.value">
       <label>Price (ETH)</label>
-      <input formControlName="price" type="number" placeholder="0.01" min="0" />
+      <input
+        formControlName="price"
+        type="number"
+        placeholder="0.001"
+        min="0.001"
+      />
     </ng-container>
 
     <button

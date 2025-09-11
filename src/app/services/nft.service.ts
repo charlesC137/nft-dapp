@@ -1,6 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { SignedVoucher, Voucher } from '../interfaces/interfaces';
+import {
+  NFT,
+  SignedVoucher,
+  UnsignedVoucher,
+  Voucher,
+} from '../interfaces/interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +14,7 @@ export class NftService {
   constructor(private http: HttpClient) {}
 
   createVoucher(form: FormData) {
-    return this.http.post<{ voucher: Voucher }>(
+    return this.http.post<{ voucher: UnsignedVoucher }>(
       '/api/nft/create-voucher',
       form,
       {
@@ -30,5 +35,12 @@ export class NftService {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  getNFTsAndVouchers(filter: string, page: number, order: string) {
+    return this.http.get<{ items: Voucher[] | NFT[] }>(
+      `/api/nft/items?filter=${filter}&page=${page}&order=${order}`,
+      { observe: 'response' }
+    );
   }
 }

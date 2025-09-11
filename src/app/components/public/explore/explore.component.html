@@ -20,12 +20,12 @@
       </button>
     </div>
 
-    <select>
-      <option value="explore">Explore</option>
-      <option value="price-asc">Price: Low to High</option>
-      <option value="price-desc">Price: High to Low</option>
-      <option value="newest-first">Newest To Oldest</option>
-      <option value="oldest-first">Oldest To Newest</option>
+    <select [(ngModel)]="filter">
+      <option value="explore asc" selected>Explore</option>
+      <option value="price asc">Price: Low to High</option>
+      <option value="price desc">Price: High to Low</option>
+      <option value="age asc">Newest To Oldest</option>
+      <option value="age desc">Oldest To Newest</option>
     </select>
 
     <div class="search-bar">
@@ -39,31 +39,5 @@
     </div>
   </section>
 
-  <app-nft-grid></app-nft-grid>
-
-  <section class="func">
-    <div class="loading" *ngIf="isLoading">
-      <div class="skeleton-grid">
-        <div
-          class="skeleton-card"
-          *ngFor="let n of skeletons; let i = index"
-          [style.animationDelay]="i * 0.1 + 's'"
-        ></div>
-      </div>
-      <p class="loading-text">Summoning NFTs from the chain...</p>
-    </div>
-
-    <div
-      class="empty-grid"
-      *ngIf="!isLoading && nfts.length === 0 && !hasError"
-    >
-      <p class="empty-text">No NFTs match your filters.</p>
-      <button class="reset-btn">Reset Filters</button>
-    </div>
-
-    <div class="error" *ngIf="hasError">
-      <p class="error-text">Something broke in the multiverse.</p>
-      <button class="retry-btn">Try Again</button>
-    </div>
-  </section>
+  <app-nft-grid [filter]="filter"></app-nft-grid>
 </div>

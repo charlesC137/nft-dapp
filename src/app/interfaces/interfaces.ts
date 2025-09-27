@@ -45,3 +45,8 @@ export interface NFT {
   createdAt: Date;
   modifiedAt: Date;
 }
+
+export interface Category {
+  value: string;
+  icon: string;
+}

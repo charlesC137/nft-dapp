@@ -1,27 +1,63 @@
+<app-loader></app-loader>
 <div class="container">
   <section class="hero-section">
     <h1>Discover, Create & Sell Unique NFTs</h1>
     <h3>Own digital art with just your wallet. No sign-up required.</h3>
     <div class="cta-buttons">
       <button class="glassy-button" routerLink="/explore">Explore NFTs</button>
-      <button *ngIf="isConnected" class="glassy-button" routerLink="/create">
+      <button *ngIf="walletAddress" class="glassy-button" routerLink="/create">
         Create NFTs
       </button>
-      <button *ngIf="!isConnected" class="glassy-button">Connect Wallet</button>
+      <button *ngIf="!walletAddress" class="glassy-button">
+        Connect Wallet
+      </button>
     </div>
   </section>
 
   <section class="featured">
     <h2>Featured NFTs</h2>
-    <div class="filter">
-      <label>Filter By:</label>
-      <select id="filter" [(ngModel)]="selectedFilter" (change)="applyFilter()">
-        <option value="recent">Recently Minted</option>
-        <option value="popular">Most Viewed</option>
-        <option value="onsale">Listed For Sale</option>
-      </select>
-    </div>
-    <app-nft-grid></app-nft-grid>
+    <owl-carousel-o [options]="customOptions">
+      <ng-template carouselSlide *ngFor="let item of featuredNFTs">
+        <div class="nft-card">
+          <div class="img-container">
+            <img [src]="item.metadata.image" alt="NFT Image" />
+            <span>🔥 HOT</span>
+          </div>
+          <div class="div"><span>Name: </span>{{ item.metadata.name }}</div>
+          <div class="div">
+            <span>Owner: </span>{{ item.creator | shortenAddress }}
+          </div>
+          <div class="div">
+            <span>Current Status: </span>
+            {{ item.isListed ? "For Sale" : "Not For Sale" }}
+          </div>
+          <div class="div">
+            <span>Price: </span>{{ weiToEth(item.price) }} ETH
+          </div>
+          <div class="action-btns">
+            <button
+              class="glassy-button"
+              *ngIf="item.creator === walletAddress && !item.isListed"
+            >
+              List For Sale
+            </button>
+            <button
+              class="glassy-button"
+              *ngIf="item.creator === walletAddress && !item.isListed"
+            >
+              Edit Price
+            </button>
+            <button
+              class="glassy-button"
+              *ngIf="item.creator === walletAddress && item.isListed"
+            >
+              Cancel Listing
+            </button>
+            <button class="glassy-button">View</button>
+          </div>
+        </div>
+      </ng-template>
+    </owl-carousel-o>
     <button class="glassy-button ft-btn" routerLink="/explore">
       Explore More NFTs
       <i class="fas fa-chevron-right"></i>

@@ -6,6 +6,7 @@ import { LoaderComponent } from './shared-components/loader/loader.component';
 import { ContractService } from './services/contract.service';
 import { LoaderService } from './services/loader.service';
 import { ToastrService } from 'ngx-toastr';
+import { NftService } from './services/nft.service';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,8 @@ export class AppComponent implements OnInit {
   constructor(
     private contractSrv: ContractService,
     private loaderSrv: LoaderService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private nftSrv: NftService
   ) {}
 
   title = 'nft-dapp';
@@ -26,6 +28,9 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
     this.loaderSrv.show();
     try {
+      window.onbeforeunload = () => {
+        window.scrollTo(0, 0);
+      };
       await this.contractSrv.restoreWalletConnection();
     } catch (error) {
       console.error('Error restoring wallet connection:', error);

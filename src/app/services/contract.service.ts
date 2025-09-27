@@ -146,6 +146,14 @@ export class ContractService {
     return this.walletAddress.value;
   }
 
+  weiToEth(wei: string) {
+    return ethers.formatEther(wei);
+  }
+
+  ethToWei(eth: string) {
+    return ethers.parseEther(eth).toString();
+  }
+
   async switchToHardhat() {
     const hardhatChainId = '0x7A69';
 

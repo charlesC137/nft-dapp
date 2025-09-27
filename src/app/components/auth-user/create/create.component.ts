@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -17,16 +17,6 @@ import { ContractService } from '../../../services/contract.service';
 import { LoaderService } from '../../../services/loader.service';
 import { SignedVoucher } from '../../../interfaces/interfaces';
 
-const CATEGORIES = [
-  'Art',
-  'Music',
-  'Meme',
-  'Photography',
-  '3D Model',
-  'Gaming',
-  'Other',
-];
-
 @Component({
   selector: 'app-create',
   standalone: true,
@@ -34,11 +24,11 @@ const CATEGORIES = [
   templateUrl: './create.component.html',
   styleUrl: './create.component.css',
 })
-export class CreateComponent {
+export class CreateComponent implements OnInit {
   nftForm: FormGroup;
   selectedFile: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
-  categories = CATEGORIES;
+  categories!: string[];
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -74,8 +64,37 @@ export class CreateComponent {
     });
   }
 
+  ngOnInit() {
+    this.contractSrv.walletAddress$.subscribe(async (addr) => {
+      if (addr) {
+        try {
+          this.categories = (
+            !this.nftSrv.categories
+              ? await this.nftSrv.loadNftCategories()
+              : this.nftSrv.categories
+          )
+            .filter((category) => {
+              return (
+                category.value !== 'all' &&
+                category.value !== 'for-sale' &&
+                category.value !== 'sold'
+              );
+            })
+            .map((category) => category.value);
+        } catch (error) {
+          console.error(error);
+          this.toastr.error('Error Loading Categories.');
+        }
+      }
+    });
+  }
+
   triggerFileInput() {
     this.fileInput.nativeElement.click();
+  }
+
+  replaceDashWithSpace(str: string) {
+    return str.replace(/-/g, ' ');
   }
 
   onFileSelected(event: Event) {

@@ -9,18 +9,27 @@
 
   <section class="filter-section">
     <div class="filter">
-      <button class="glassy-button">All</button>
-      <button class="glassy-button">Sold</button>
-      <button class="glassy-button">For Sale</button>
-      <button class="glassy-button active">
-        <i class="fas fa-music"></i> Art
+      <button
+        *ngFor="let filter of filters.slice(0, 7)"
+        class="glassy-button"
+        [id]="filter.value"
+        [class.active]="checkFilterIsActive(filter.value)"
+        (click)="toggleFilter(filter.value)"
+      >
+        <i [class]="filter.icon + ' ' + 'fas'"></i
+        >{{ replaceDashWithSpace(filter.value) }}
       </button>
-      <button class="glassy-button">
-        <i class="fas fa-gem"></i> Collectibles
+      <button
+        class="glassy-button"
+        [class.active]="isSeeMoreActive()"
+        (click)="toggleCategoriesModal()"
+      >
+        <i class="fas fa-angles-right"></i>
+        See More
       </button>
     </div>
 
-    <select [(ngModel)]="filter">
+    <select [(ngModel)]="order">
       <option value="explore asc" selected>Explore</option>
       <option value="price asc">Price: Low to High</option>
       <option value="price desc">Price: High to Low</option>
@@ -30,14 +39,45 @@
 
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input type="text" placeholder="Search for NFT by name..." />
+      <input
+        [(ngModel)]="searchTerm"
+        type="text"
+        placeholder="Search for NFT by name..."
+      />
     </div>
 
     <div class="extra">
-      <div class="live-count">52 NFTs found</div>
-      <button class="glassy-button">Clear All Filters</button>
+      <div class="live-count">
+        {{ nftsFound + " NFT" + (nftsFound !== 1 ? "s" : "") + " Found" }}
+      </div>
+      <button class="glassy-button" (click)="toggleFilter('all')">
+        Clear All Filters
+      </button>
     </div>
   </section>
 
-  <app-nft-grid [filter]="filter"></app-nft-grid>
+  <app-nft-grid
+    [order]="order"
+    [filters]="activeFilters"
+    [searchTerm]="searchTerm"
+    (nftsFound)="onNftsFound($event)"
+  ></app-nft-grid>
+</div>
+
+<div class="categories-modal" [class.show]="showCategoriesModal">
+  <div class="modal-container">
+    <button class="close" (click)="toggleCategoriesModal()">
+      <i class="fas fa-xmark"></i>
+    </button>
+    <button
+      *ngFor="let filter of getModalFilters()"
+      class="glassy-button"
+      [id]="filter.value"
+      [class.active]="checkFilterIsActive(filter.value)"
+      (click)="toggleFilter(filter.value)"
+    >
+      <i [class]="filter.icon + ' ' + 'fas'"></i
+      >{{ replaceDashWithSpace(filter.value) }}
+    </button>
+  </div>
 </div>

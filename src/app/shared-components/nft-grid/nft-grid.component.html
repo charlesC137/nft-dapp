@@ -3,47 +3,42 @@
   infiniteScroll
   [infiniteScrollDistance]="2"
   [infiniteScrollThrottle]="150"
-  (scrolled)="loadMore()"
+  [infiniteScrollDisabled]="initialLoad || noMoreItems"
+  [scrollWindow]="true"
+  (scrolled)="onScroll()"
+  [class.reduce-height]="noMoreItems || hasError"
 >
-  <div class="nft-card">
+  <div class="nft-card" *ngFor="let item of items">
     <div class="img-container">
-      <img src="https://placehold.co/600x400" alt="NFT Image" />
-      <span>🔥 HOT</span>
+      <img [src]="item.metadata.image" alt="NFT Image" />
+      <!-- <span>🔥 HOT</span> -->
     </div>
-    <div class="div"><span>Name: </span>Lorem ipsum dolor sit amet.</div>
-    <div class="div"><span>Owner: </span>Loremip...dolors</div>
-    <div class="div"><span>Current Status: </span> For Sale</div>
-    <div class="div"><span>Price: </span>1 ETH</div>
+    <div class="div"><span>Name: </span>{{ item.metadata.name }}</div>
+    <div class="div">
+      <span>Owner: </span>{{ item.creator | shortenAddress }}
+    </div>
+    <div class="div">
+      <span>Current Status: </span>
+      {{ item.isListed ? "For Sale" : "Not For Sale" }}
+    </div>
+    <div class="div"><span>Price: </span>{{ weiToEth(item.price) }} ETH</div>
     <div class="action-btns">
-      <button class="glassy-button" *ngIf="profile && !onSale">
+      <button
+        class="glassy-button"
+        *ngIf="item.creator === walletAddress && !item.isListed"
+      >
         List For Sale
       </button>
-      <button class="glassy-button" *ngIf="profile && !onSale">
+      <button
+        class="glassy-button"
+        *ngIf="item.creator === walletAddress && !item.isListed"
+      >
         Edit Price
       </button>
-      <button class="glassy-button" *ngIf="profile && onSale">
-        Cancel Listing
-      </button>
-      <button class="glassy-button">View</button>
-    </div>
-  </div>
-  <div class="nft-card">
-    <div class="img-container">
-      <img src="https://placehold.co/600x400" alt="NFT Image" />
-      <span>🔥 HOT</span>
-    </div>
-    <div class="div"><span>Name: </span>Lorem ipsum dolor sit amet.</div>
-    <div class="div"><span>Owner: </span>Loremip...dolors</div>
-    <div class="div"><span>Current Status: </span> For Sale</div>
-    <div class="div"><span>Price: </span>1 ETH</div>
-    <div class="action-btns">
-      <button class="glassy-button" *ngIf="profile && !onSale">
-        List For Sale
-      </button>
-      <button class="glassy-button" *ngIf="profile && !onSale">
-        Edit Price
-      </button>
-      <button class="glassy-button" *ngIf="profile && onSale">
+      <button
+        class="glassy-button"
+        *ngIf="item.creator === walletAddress && item.isListed"
+      >
         Cancel Listing
       </button>
       <button class="glassy-button">View</button>
@@ -70,6 +65,6 @@
 
   <div class="error" *ngIf="hasError">
     <p class="error-text">Something broke in the multiverse.</p>
-    <button class="retry-btn">Try Again</button>
+    <button class="retry-btn" (click)="loadItems()">Try Again</button>
   </div>
 </section>

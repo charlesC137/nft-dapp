@@ -85,4 +85,11 @@ export class NftService {
       observe: 'response',
     });
   }
+
+  getNFTOrVoucherDetail(id: string, type: 'nft' | 'voucher') {
+    return this.http.get<{ item: NFT | Voucher }>('/api/nft/details', {
+      params: { id, type },
+      observe: 'response',
+    });
+  }
 }

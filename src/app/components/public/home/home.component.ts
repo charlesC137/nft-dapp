@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CarouselModule } from 'ngx-owl-carousel-o';
 import { NFT, Voucher } from '../../../interfaces/interfaces';
 import { ShortenAddressPipe } from '../../../pipes/shorten-address.pipe';
@@ -31,7 +31,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private contractSrv: ContractService,
     private nftSrv: NftService,
     private loaderSrv: LoaderService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router
   ) {}
 
   featuredNFTs: (Voucher | NFT)[] = [];
@@ -92,6 +93,18 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   weiToEth(wei: string) {
     return this.contractSrv.weiToEth(wei);
+  }
+
+  viewMore(item: NFT | Voucher) {
+    const type = this.isNFT(item) ? 'nft' : 'voucher';
+    this.router.navigate([`/nft/${item._id}`], {
+      queryParams: { type },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  isNFT(item: NFT | Voucher): item is NFT {
+    return (item as NFT).owner !== undefined;
   }
 
   ngOnDestroy(): void {

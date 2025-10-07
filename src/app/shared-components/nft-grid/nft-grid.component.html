@@ -15,7 +15,8 @@
     </div>
     <div class="div"><span>Name: </span>{{ item.metadata.name }}</div>
     <div class="div">
-      <span>Owner: </span>{{ item.creator | shortenAddress }}
+      <span>Owner: </span
+      >{{ (isNFT(item) ? item.owner : item.creator) | shortenAddress }}
     </div>
     <div class="div">
       <span>Current Status: </span>
@@ -25,23 +26,32 @@
     <div class="action-btns">
       <button
         class="glassy-button"
-        *ngIf="item.creator === walletAddress && !item.isListed"
+        *ngIf="
+          (isNFT(item) ? item.owner : item.creator) === walletAddress &&
+          !item.isListed
+        "
       >
         List For Sale
       </button>
       <button
         class="glassy-button"
-        *ngIf="item.creator === walletAddress && !item.isListed"
+        *ngIf="
+          (isNFT(item) ? item.owner : item.creator) === walletAddress &&
+          !item.isListed
+        "
       >
         Edit Price
       </button>
       <button
         class="glassy-button"
-        *ngIf="item.creator === walletAddress && item.isListed"
+        *ngIf="
+          (isNFT(item) ? item.owner : item.creator) === walletAddress &&
+          item.isListed
+        "
       >
         Cancel Listing
       </button>
-      <button class="glassy-button">View</button>
+      <button class="glassy-button" (click)="viewMore(item)">View</button>
     </div>
   </div>
 </div>

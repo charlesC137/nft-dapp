@@ -1,53 +1,73 @@
-<div class="container">
+<app-loader></app-loader>
+
+<div class="container" *ngIf="item">
   <section class="top">
     <div class="img-container">
-      <img src="../../../../assets/nft.jpg" alt="nft-img" />
+      <img [src]="item.uri" alt="nft-img" />
     </div>
     <div class="metadata">
-      <div>
-        <span>Title:</span>Lorem ipsum dolor sit amet consectetur adipisicing
-        elit. Nihil enim facilis eaque iusto expedita! Veritatis!
+      <div><span>Title:</span>{{ item.metadata.name }}</div>
+      <div style="text-transform: capitalize">
+        <span>Category/Tags:</span>{{ item.metadata.categories.join(", ") }}
       </div>
-      <div><span>Category/Tags:</span>Art, Beauty, Nature</div>
-      <div><span>Current Owner:</span>0xfde...3gt43</div>
-      <div><span>Token ID:</span>156</div>
+      <div>
+        <span>Current Owner:</span
+        >{{ (isNFT(item) ? item.owner : item.creator) | shortenAddress }}
+      </div>
+      <div>
+        <span>Token ID:</span>{{ isNFT(item) ? item.tokenId : item._id }}
+      </div>
     </div>
   </section>
   <section class="mid">
     <h2>More Details <i class="fas fa-circle-info"></i></h2>
 
     <div class="details">
-      <div><span>Creator Address:</span>0xfde...3gt43</div>
-      <div><span>Contract Address:</span>0xfde...3gt43</div>
       <div>
-        <span>Description:</span>Lorem ipsum dolor sit, amet consectetur
-        adipisicing elit. Minima et voluptatum harum. Veritatis soluta vitae
-        doloremque tempora magni, quos esse libero culpa ea quae dolore unde
-        maxime! Expedita saepe aliquam fugit veniam laboriosam numquam incidunt
-        culpa, similique odit consequatur quo quam tenetur repellat provident
-        nesciunt. Ab dolorem laborum, voluptatibus temporibus illum ipsam
-        suscipit, quis, cum recusandae sed aliquid delectus ullam impedit
-        quibusdam excepturi quisquam! Voluptas error consectetur odio!
-        Explicabo, voluptatem. Aliquam laudantium nobis adipisci dolor pariatur
-        sunt, delectus maxime numquam illum libero voluptatibus quis id soluta
-        earum aspernatur. Doloribus dicta libero aspernatur eaque ratione modi
-        maxime saepe ullam ea illum?
+        <span>Creator Address:</span>{{ item.creator | shortenAddress }}
       </div>
-      <div><span>Price:</span>1 ETH</div>
+      <div>
+        <span>Contract Address:</span>{{ contractAddr | shortenAddress }}
+      </div>
+      <div><span>Description:</span>{{ item.metadata.description }}</div>
+      <div><span>Price:</span>{{ weiToEth(item.price) }} ETH</div>
     </div>
 
     <div class="action-btns">
-      <button class="glassy-button">
+      <button
+        class="glassy-button"
+        *ngIf="walletAddr !== (isNFT(item) ? item.owner : item.creator)"
+      >
         <i class="fas fa-bookmark"></i> Bookmark
       </button>
-      <button class="glassy-button">Buy Now</button>
-      <button class="glassy-button">List For Sale</button>
-      <button class="glassy-button">Cancel Listing</button>
-      <button class="glassy-button">Transfer Ownership</button>
+      <button
+        class="glassy-button"
+        *ngIf="walletAddr !== (isNFT(item) ? item.owner : item.creator)"
+      >
+        Buy Now
+      </button>
+      <button
+        class="glassy-button"
+        *ngIf="walletAddr === (isNFT(item) ? item.owner : item.creator)"
+      >
+        List For Sale
+      </button>
+      <button
+        class="glassy-button"
+        *ngIf="walletAddr === (isNFT(item) ? item.owner : item.creator)"
+      >
+        Cancel Listing
+      </button>
+      <button
+        class="glassy-button"
+        *ngIf="walletAddr === (isNFT(item) ? item.owner : item.creator)"
+      >
+        Transfer Ownership
+      </button>
       <button class="glassy-button">View On Etherscan</button>
     </div>
 
     <h3>Other NFTs You Can Check Out</h3>
-    <app-nft-grid></app-nft-grid>
+    <app-nft-grid [firstPageOnly]="item._id"></app-nft-grid>
   </section>
 </div>

@@ -17,6 +17,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ContractService } from '../../services/contract.service';
 import { FormsModule } from '@angular/forms';
 import { ShortenAddressPipe } from '../../pipes/shorten-address.pipe';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-nft-grid',
@@ -34,12 +35,14 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private nftSrv: NftService,
     private toastr: ToastrService,
-    private contractSrv: ContractService
+    private contractSrv: ContractService,
+    private router: Router
   ) {}
 
   @Input() order!: string;
   @Input() filters!: string[];
   @Input() searchTerm!: string;
+  @Input() firstPageOnly!: string;
 
   @Output() nftsFound = new EventEmitter<number>();
 
@@ -67,7 +70,12 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnChanges(changes: SimpleChanges) {
-    if (changes['filters'] || changes['order'] || changes['searchTerm']) {
+    if (
+      changes['filters'] ||
+      changes['order'] ||
+      changes['searchTerm'] ||
+      changes['firstPageOnly']
+    ) {
       this.page = 1;
       this.items = [];
       this.noMoreItems = false;
@@ -76,7 +84,12 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onScroll() {
-    if (this.initialLoad || this.isLoading) return;
+    if (
+      this.initialLoad ||
+      this.isLoading ||
+      (this.firstPageOnly && this.page > 1)
+    )
+      return;
     this.loadItems();
   }
 
@@ -117,7 +130,15 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
               return;
             }
 
-            this.items.push(...data.items);
+            if (this.firstPageOnly) {
+              const newItems = data.items.filter(
+                (item) => item._id !== this.firstPageOnly
+              );
+              this.items.push(...newItems);
+            } else {
+              this.items.push(...data.items);
+            }
+
             this.page++;
           } catch (err: any) {
             console.error(err);
@@ -129,6 +150,18 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
     );
+  }
+
+  viewMore(item: NFT | Voucher) {
+    const type = this.isNFT(item) ? 'nft' : 'voucher';
+    this.router.navigate([`/nft/${item._id}`], {
+      queryParams: { type },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  isNFT(item: NFT | Voucher): item is NFT {
+    return (item as NFT).owner !== undefined;
   }
 
   weiToEth(wei: string) {

@@ -1,17 +1,17 @@
-<div class="container">
+<div class="container" *ngIf="profile">
   <section class="top">
     <div class="circle">
       <label
         *ngIf="isOwner"
         for="imageUpload"
         class="img-container"
-        title="Click to upload"
+        title="Click to update"
       >
-        <img [src]="previewUrl || '../../../assets/default.jpg'" alt="Avatar" />
+        <img [src]="profile.avatarUrl || previewUrl" alt="Avatar" />
       </label>
 
       <div *ngIf="!isOwner" class="img-container">
-        <img [src]="previewUrl || '../../../assets/default.jpg'" alt="Avatar" />
+        <img [src]="profile.avatarUrl" alt="Avatar" />
       </div>
 
       <input
@@ -27,9 +27,9 @@
 
     <div class="details">
       <div class="address">
-        <span>Wallet Address:</span>{{ routeWalletAddress | shortenAddress }}
+        <span>Wallet Address:</span>{{ profile.walletAddress | shortenAddress }}
       </div>
-      <button (click)="copyText(routeWalletAddress)">
+      <button (click)="copyText(profile.walletAddress)">
         <i class="fas fa-copy"></i>
       </button>
     </div>
@@ -41,11 +41,19 @@
       <label>Filter By:</label>
       <select id="filter" [(ngModel)]="selectedFilter" (change)="applyFilter()">
         <option value="all">All</option>
+        <option value="bookmarked" *ngIf="isOwner">Bookmarked</option>
         <option value="created">Created</option>
+        <option value="bought">Bought</option>
         <option value="onsale">Listed For Sale</option>
+        <option value="nosale">Not Listed For Sale</option>
       </select>
     </div>
-    <app-nft-grid></app-nft-grid>
+    <div class="grid-cont"><app-nft-grid></app-nft-grid></div>
+  </section>
+
+  <section class="nft-gallery">
+    <h2>Bookmarked NFTs</h2>
+    <div class="grid-cont"><app-nft-grid></app-nft-grid></div>
   </section>
 
   <section class="profile-stats">

@@ -13,6 +13,7 @@ export interface SignedVoucher extends UnsignedVoucher {
 }
 
 export interface Voucher {
+  _id: string;
   creator: string;
   uri: string;
   metadata: {
@@ -30,6 +31,7 @@ export interface Voucher {
 }
 
 export interface NFT {
+  _id: string;
   tokenId: number;
   creator: string;
   owner: string;
@@ -49,4 +51,14 @@ export interface NFT {
 export interface Category {
   value: string;
   icon: string;
+}
+
+export interface User {
+  walletAddress: string;
+  avatarUrl: string;
+  bio: string;
+  private: boolean;
+  username: string;
+  ownedNFTs: string[];
+  bookmarkedNFTs: string[];
 }

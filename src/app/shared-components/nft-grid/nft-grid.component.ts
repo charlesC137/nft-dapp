@@ -40,9 +40,12 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   @Input() order!: string;
-  @Input() filters!: string[];
+  @Input() filters!: string[]; //for the explore pages and the rest
   @Input() searchTerm!: string;
   @Input() firstPageOnly!: string;
+  @Input() ownerAddress!: string;
+  @Input() nftIds!: string[];
+  @Input() filterType!: string; //only for the profile
 
   @Output() nftsFound = new EventEmitter<number>();
 
@@ -61,11 +64,10 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
 
   walletAddrSub!: Subscription;
 
-  async ngOnInit() {
+  ngOnInit() {
     //await this.loadItems();
 
     this.sessionId = Date.now().toString();
-
     this.initialLoad = false;
   }
 
@@ -74,7 +76,10 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
       changes['filters'] ||
       changes['order'] ||
       changes['searchTerm'] ||
-      changes['firstPageOnly']
+      changes['firstPageOnly'] ||
+      changes['filterType'] ||
+      changes['nftIds'] ||
+      changes['ownerAddress']
     ) {
       this.page = 1;
       this.items = [];
@@ -106,6 +111,16 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
             const form = parts[0];
             const order = parts[1];
 
+            if (this.nftIds && this.nftIds.length === 0) {
+              console.warn('No items to load');
+              this.noMoreItems = true;
+              return;
+            }
+
+            if (form === 'explore' && !this.sessionId) {
+              this.sessionId = Date.now().toString();
+            }
+
             const res = await firstValueFrom(
               this.nftSrv.getNFTsAndVouchers(
                 form,
@@ -113,7 +128,10 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
                 order,
                 this.sessionId,
                 this.filters,
-                this.searchTerm
+                this.searchTerm,
+                this.ownerAddress,
+                this.nftIds,
+                this.filterType
               )
             );
 
@@ -154,6 +172,7 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
 
   viewMore(item: NFT | Voucher) {
     const type = this.isNFT(item) ? 'nft' : 'voucher';
+
     this.router.navigate([`/nft/${item._id}`], {
       queryParams: { type },
       queryParamsHandling: 'merge',
@@ -161,7 +180,7 @@ export class NftGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   isNFT(item: NFT | Voucher): item is NFT {
-    return (item as NFT).owner !== undefined;
+    return this.nftSrv.isNFT(item);
   }
 
   weiToEth(wei: string) {

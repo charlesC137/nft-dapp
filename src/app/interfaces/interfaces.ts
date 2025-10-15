@@ -1,7 +1,7 @@
 export interface UnsignedVoucher {
   creator: string;
   price: string;
-  uri: string;
+  image: string;
 }
 
 export interface SignedVoucher extends UnsignedVoucher {
@@ -15,12 +15,16 @@ export interface SignedVoucher extends UnsignedVoucher {
 export interface Voucher {
   _id: string;
   creator: string;
+  owner: string;
   uri: string;
   metadata: {
     name: string;
     description: string;
     image: string;
     categories: [string];
+    createdAt: Date;
+    //attributes: [{ trait_type: string; value: string }];
+    itemId: string;
   };
   price: string;
   signature: string;
@@ -41,6 +45,9 @@ export interface NFT {
     description: string;
     image: string;
     categories: [string];
+    createdAt: Date;
+    //attributes: [{ trait_type: string; value: string }];
+    itemId: string;
   };
   price: string;
   isListed: boolean;

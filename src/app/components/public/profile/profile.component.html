@@ -26,12 +26,37 @@
     </div>
 
     <div class="details">
-      <div class="address">
+      <div>
         <span>Wallet Address:</span>{{ profile.walletAddress | shortenAddress }}
+
+        <button (click)="copyText(profile.walletAddress)">
+          <i class="fas fa-copy"></i>
+        </button>
       </div>
-      <button (click)="copyText(profile.walletAddress)">
-        <i class="fas fa-copy"></i>
+
+      <div *ngIf="profile.username">
+        <span>Username:</span>{{ profile.username }}
+      </div>
+
+      <div *ngIf="profile.bio"><span>Bio:</span>{{ profile.bio }}</div>
+
+      <button
+        class="glassy-button"
+        (click)="toggleProfileModal()"
+        *ngIf="isOwner"
+      >
+        <i class="fas fa-pencil"></i> Edit Profile
       </button>
+    </div>
+  </section>
+
+  <section class="nft-gallery" *ngIf="isOwner || profile.private === false">
+    <h2>Bookmarked NFTs</h2>
+    <div class="grid-cont">
+      <app-nft-grid
+        [order]="order"
+        [nftIds]="profile.bookmarkedNFTs || []"
+      ></app-nft-grid>
     </div>
   </section>
 
@@ -39,21 +64,21 @@
     <h2>NFT Gallery</h2>
     <div class="filter">
       <label>Filter By:</label>
-      <select id="filter" [(ngModel)]="selectedFilter" (change)="applyFilter()">
+      <select id="filter" [(ngModel)]="selectedFilter">
         <option value="all">All</option>
-        <option value="bookmarked" *ngIf="isOwner">Bookmarked</option>
         <option value="created">Created</option>
         <option value="bought">Bought</option>
         <option value="onsale">Listed For Sale</option>
         <option value="nosale">Not Listed For Sale</option>
       </select>
     </div>
-    <div class="grid-cont"><app-nft-grid></app-nft-grid></div>
-  </section>
-
-  <section class="nft-gallery">
-    <h2>Bookmarked NFTs</h2>
-    <div class="grid-cont"><app-nft-grid></app-nft-grid></div>
+    <div class="grid-cont">
+      <app-nft-grid
+        [order]="order"
+        [ownerAddress]="profile.walletAddress"
+        [filterType]="selectedFilter"
+      ></app-nft-grid>
+    </div>
   </section>
 
   <section class="profile-stats">
@@ -76,4 +101,65 @@
       </div>
     </div>
   </section>
+</div>
+
+<div class="profile-modal" [class.show]="showProfileModal">
+  <div class="modal-container" *ngIf="profileEdit">
+    <button class="close" (click)="toggleProfileModal()">
+      <i class="fas fa-xmark"></i>
+    </button>
+
+    <div>
+      <label for="username">Username:</label>
+      <input
+        type="text"
+        placeholder="20 characters max"
+        [(ngModel)]="profileEdit.username"
+      />
+      <small
+        [ngStyle]="{
+          color:
+            getTextStats(profileEdit.username).chars > 20
+              ? 'var(--error)'
+              : 'inherit'
+        }"
+        >{{ getTextStats(profileEdit.username).chars }} / 20 characters</small
+      >
+    </div>
+
+    <div>
+      <label for="bio">Bio:</label>
+      <textarea
+        [(ngModel)]="profileEdit.bio"
+        placeholder="50 words max"
+      ></textarea>
+      <small
+        [ngStyle]="{
+          color:
+            getTextStats(profileEdit.bio).words > 50
+              ? 'var(--error)'
+              : 'inherit'
+        }"
+        >{{ getTextStats(profileEdit.bio).words }} / 50 words</small
+      >
+    </div>
+
+    <div>
+      <label class="toggle-label">
+        <span
+          ><i class="fas fa-lock" *ngIf="profileEdit.privateMode"></i>
+          <i class="fas fa-unlock" *ngIf="!profileEdit.privateMode"></i>Private
+          Mode</span
+        >
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="profileEdit.privateMode" />
+          <span class="slider round"></span>
+        </label>
+      </label>
+    </div>
+
+    <button class="submit-btn glassy-button" (click)="submitProfile()">
+      Submit
+    </button>
+  </div>
 </div>

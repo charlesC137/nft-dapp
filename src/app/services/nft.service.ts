@@ -57,7 +57,10 @@ export class NftService {
     order: string,
     sessionId?: string,
     filters?: string[],
-    searchTerm?: string
+    searchTerm?: string,
+    ownerAddress?: string,
+    nftIds?: string[],
+    filterType?: string
   ) {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -78,6 +81,20 @@ export class NftService {
       params = params.set('searchTerm', searchTerm);
     }
 
+    if (ownerAddress) {
+      params = params.set('ownerAddress', ownerAddress);
+    }
+
+    if (nftIds) {
+      nftIds.forEach((id) => {
+        params = params.append('nftIds', id);
+      });
+    }
+
+    if (filterType) {
+      params = params.set('filterType', filterType);
+    }
+
     return this.http.get<{
       data: { items: (NFT | Voucher)[]; totalCount: number };
     }>('/api/nft/items', {
@@ -91,5 +108,19 @@ export class NftService {
       params: { id, type },
       observe: 'response',
     });
+  }
+
+  toggleNFTBookmark(id: string, owner: string) {
+    return this.http.post<{ message: string; bookmarks: string[] }>(
+      'api/nft/bookmark',
+      { id, owner },
+      {
+        observe: 'response',
+      }
+    );
+  }
+
+  isNFT(item: NFT | Voucher) {
+    return (item as NFT).tokenId !== undefined;
   }
 }

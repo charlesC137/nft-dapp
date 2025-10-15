@@ -157,6 +157,13 @@ textarea {
   border: 1px solid var(--secondary);
 }
 
+.glassy-button.active {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 30px rgba(0, 224, 255, 0.2);
+  transform: scale(1.03);
+  border: 1px solid var(--secondary);
+}
+
 .container {
   padding: 50px;
   margin-top: 100px;

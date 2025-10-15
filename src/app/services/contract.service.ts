@@ -143,7 +143,7 @@ export class ContractService {
   }
 
   getWalletAddress() {
-    return this.walletAddress.value;
+    return this.walletAddress.value?.toLowerCase();
   }
 
   weiToEth(wei: string) {
@@ -179,5 +179,34 @@ export class ContractService {
         console.error(switchError);
       }
     }
+  }
+
+  async mintVoucher(
+    voucher: {
+      creator: string;
+      uri: string;
+      price: string;
+      expiry: Date;
+      listItem: boolean;
+    },
+    signature: string
+  ) {
+    const contract = new ethers.Contract(
+      this.domain.verifyingContract,
+      contractAbi,
+      this.signer
+    );
+
+    const price =
+      voucher.creator.toLowerCase() === this.getWalletAddress()
+        ? 0
+        : voucher.price;
+
+    const tx = await contract['lazyMint'](voucher, signature, {
+      value: price,
+    });
+
+    const receipt = await tx.wait();
+    return receipt;
   }
 }

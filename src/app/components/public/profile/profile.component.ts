@@ -36,8 +36,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private userSrv: UserService,
-    private http: HttpClient
+    private userSrv: UserService
   ) {}
 
   selectedFilter: string = 'all';
@@ -48,6 +47,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
   walletAddressSub!: Subscription;
   profileSub!: Subscription;
   profile!: User;
+
+  showProfileModal = false;
+  profileEdit!: { username: string; bio: string; privateMode: boolean };
+
+  order = 'age desc';
 
   ngOnInit() {
     this.loaderSrv.show();
@@ -89,19 +93,86 @@ export class ProfileComponent implements OnInit, OnDestroy {
           console.error(err);
           //this.router.navigate(['/']);
           return [];
-        }),
-        finalize(() => {
-          this.loaderSrv.hide();
         })
       )
       .subscribe(({ isOwner, profile }) => {
         this.isOwner = isOwner;
         this.profile = profile;
+
+        if (isOwner) this.userSrv.updateUser(profile);
+
         this.cdr.detectChanges();
+        this.loaderSrv.hide();
       });
   }
 
-  applyFilter() {}
+  toggleProfileModal() {
+    if (this.showProfileModal) return (this.showProfileModal = false);
+
+    this.profileEdit = {
+      bio: this.profile.bio,
+      username: this.profile.username,
+      privateMode: this.profile.private,
+    };
+
+    return (this.showProfileModal = true);
+  }
+
+  async submitProfile() {
+    try {
+      const usernameRegex = /^[a-zA-Z0-9_]+$/;
+      const bioRegex = /^[a-zA-Z0-9\s.,!?'"()-]*$/;
+
+      if (this.profileEdit.username && this.profileEdit.username.length > 20) {
+        this.toastrSrv.error('Username must be at most 20 characters long.');
+        return;
+      }
+
+      if (
+        this.profileEdit.username &&
+        !usernameRegex.test(this.profileEdit.username)
+      ) {
+        this.toastrSrv.error(
+          'Username can only contain letters, numbers, and underscores.'
+        );
+        return;
+      }
+
+      if (this.profileEdit.bio) {
+        const words = this.profileEdit.bio.trim().split(/\s+/);
+        if (words.length > 50) {
+          this.toastrSrv.error('Bio must be at most 50 words long.');
+          return;
+        }
+        if (!bioRegex.test(this.profileEdit.bio)) {
+          this.toastrSrv.error('Bio contains invalid characters.');
+          return;
+        }
+      }
+
+      this.loaderSrv.show();
+
+      await firstValueFrom(this.userSrv.updateUserProfile(this.profileEdit));
+
+      this.profile.bio = this.profileEdit.bio;
+      this.profile.username = this.profileEdit.username;
+      this.profile.private = this.profileEdit.privateMode;
+
+      this.toastrSrv.success('Profile updated successfully');
+
+      this.toggleProfileModal();
+    } catch (err: any) {
+      const message =
+        err.status === 409
+          ? 'Username already taken'
+          : 'Error updating profile';
+
+      console.error(err);
+      this.toastrSrv.error(message);
+    } finally {
+      this.loaderSrv.hide();
+    }
+  }
 
   onFileSelected(event: Event) {
     if (!this.isOwner) {
@@ -155,6 +226,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .catch((err) => {
         this.toastrSrv.error('Failed to copy!');
       });
+  }
+
+  getTextStats(text: string) {
+    if (!text) {
+      return { words: 0, chars: 0 };
+    }
+
+    const cleaned = text.trim();
+    const words = cleaned ? cleaned.split(/\s+/).length : 0;
+    const chars = cleaned.length;
+
+    return { words, chars };
   }
 
   ngOnDestroy() {

@@ -48,9 +48,17 @@
     ></textarea>
 
     <label class="toggle-label">
-      <span>List for sale after mint?</span>
+      <span>List for sale after creating?</span>
       <label class="switch">
         <input type="checkbox" formControlName="listForSale" />
+        <span class="slider round"></span>
+      </label>
+    </label>
+
+    <label class="toggle-label">
+      <span>Create and Mint?</span>
+      <label class="switch">
+        <input type="checkbox" />
         <span class="slider round"></span>
       </label>
     </label>
@@ -71,7 +79,7 @@
       [disabled]="!nftForm.valid || !selectedFile"
       class="glassy-button"
     >
-      Mint NFT
+      Create NFT
     </button>
   </form>
 </div>

@@ -97,6 +97,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   viewMore(item: NFT | Voucher) {
     const type = this.isNFT(item) ? 'nft' : 'voucher';
+
     this.router.navigate([`/nft/${item._id}`], {
       queryParams: { type },
       queryParamsHandling: 'merge',
@@ -104,7 +105,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   isNFT(item: NFT | Voucher): item is NFT {
-    return (item as NFT).owner !== undefined;
+    return this.nftSrv.isNFT(item);
   }
 
   ngOnDestroy(): void {

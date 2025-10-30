@@ -41,7 +41,7 @@
       </button>
       <button
         class="glassy-button"
-        *ngIf="walletAddr !== item.owner && item.isListed"
+        *ngIf="walletAddr !== item.owner && item.isListed && isNFT(item)"
       >
         Buy Now
       </button>
@@ -56,6 +56,13 @@
         *ngIf="walletAddr === item.owner && item.isListed"
       >
         Cancel Listing
+      </button>
+      <button
+        class="glassy-button"
+        *ngIf="!isNFT(item) && (walletAddr === item.owner || item.isListed)"
+        (click)="mint()"
+      >
+        Mint
       </button>
       <button class="glassy-button" *ngIf="walletAddr === item.owner">
         Transfer Ownership

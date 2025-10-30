@@ -28,6 +28,8 @@ export class ContractService {
       { name: 'creator', type: 'address' },
       { name: 'uri', type: 'string' },
       { name: 'price', type: 'uint256' },
+      { name: 'expiry', type: 'uint256' },
+      { name: 'listItem', type: 'bool' },
     ],
   };
 
@@ -108,6 +110,7 @@ export class ContractService {
           this.types,
           message
         );
+
         return signature;
       } else {
         if (typeof message !== 'string') {
@@ -146,8 +149,15 @@ export class ContractService {
     return this.walletAddress.value?.toLowerCase();
   }
 
-  weiToEth(wei: string) {
-    return ethers.formatEther(wei);
+  weiToEth(wei: string | number | bigint | undefined) {
+    try {
+      if (!wei || wei === '0' || wei === 0 || wei === '0.0') return '0';
+      const safeWei = BigInt(Math.floor(Number(wei))).toString();
+      return ethers.formatEther(safeWei);
+    } catch (error) {
+      console.error('Invalid wei value:', wei, error);
+      return '0';
+    }
   }
 
   ethToWei(eth: string) {
@@ -181,32 +191,39 @@ export class ContractService {
     }
   }
 
-  async mintVoucher(
-    voucher: {
-      creator: string;
-      uri: string;
-      price: string;
-      expiry: Date;
-      listItem: boolean;
-    },
-    signature: string
-  ) {
-    const contract = new ethers.Contract(
-      this.domain.verifyingContract,
-      contractAbi,
-      this.signer
-    );
+  async mintNFT(voucher: UnsignedVoucher, signature: string) {
+    try {
+      if (!this.signer) {
+        throw new Error('Signer not provided');
+      }
 
-    const price =
-      voucher.creator.toLowerCase() === this.getWalletAddress()
-        ? 0
-        : voucher.price;
+      const contract =
+        this.contract ||
+        new ethers.Contract(
+          this.domain.verifyingContract,
+          contractAbi,
+          this.signer
+        );
 
-    const tx = await contract['lazyMint'](voucher, signature, {
-      value: price,
-    });
+      const price =
+        voucher.creator.toLowerCase() === this.getWalletAddress()
+          ? BigInt(0)
+          : voucher.price;
 
-    const receipt = await tx.wait();
-    return receipt;
+      const tx = await contract['lazyMint'](voucher, signature, {
+        value: price,
+      });
+
+      const receipt = await tx.wait();
+
+      if (receipt.status !== 1) {
+        throw new Error('Transaction reverted');
+      }
+
+      this.toastr.success('NFT minted successfully');
+    } catch (err: any) {
+      this.toastr.error('Error minting NFT');
+      console.error('Error minting NFT:', err?.reason || err?.message || err);
+    }
   }
 }

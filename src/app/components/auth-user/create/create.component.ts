@@ -15,7 +15,7 @@ import { ethers } from 'ethers';
 import { NftService } from '../../../services/nft.service';
 import { ContractService } from '../../../services/contract.service';
 import { LoaderService } from '../../../services/loader.service';
-import { SignedVoucher } from '../../../interfaces/interfaces';
+import { UnsignedVoucher } from '../../../interfaces/interfaces';
 
 @Component({
   selector: 'app-create',
@@ -45,6 +45,7 @@ export class CreateComponent implements OnInit {
       price: [{ value: '', disabled: true }, [Validators.min(0.001)]],
       categories: this.fb.array([]),
       listForSale: [false],
+      createAndMint: [false],
     });
 
     this.nftForm.get('listForSale')?.valueChanges.subscribe((listForSale) => {
@@ -139,8 +140,14 @@ export class CreateComponent implements OnInit {
 
     this.loaderSrv.show();
     try {
-      const { name, description, price, categories, listForSale } =
-        this.nftForm.value;
+      const {
+        name,
+        description,
+        price,
+        categories,
+        listForSale,
+        createAndMint,
+      } = this.nftForm.value;
 
       const formattedPrice = Number(price).toLocaleString('fullwide', {
         useGrouping: false,
@@ -153,30 +160,46 @@ export class CreateComponent implements OnInit {
       const formData = new FormData();
       formData.append('price', ethPrice);
       formData.append('image', this.selectedFile);
+      formData.append('name', name);
+      formData.append('isListed', listForSale);
+
+      if (categories.length > 0) formData.append('categories', categories);
+      if (description) formData.append('description', description);
 
       const res = await firstValueFrom(this.nftSrv.createVoucher(formData));
       if (res.status !== 200 || !res.body?.voucher)
         throw new Error('Voucher creation failed');
 
-      const unsignedVoucher = res.body.voucher;
+      const { voucher } = res.body;
+
+      const expiryTimestamp = Math.floor(
+        new Date(voucher.expiry).getTime() / 1000
+      );
+
+      const unsignedVoucher: UnsignedVoucher = {
+        uri: voucher.uri,
+        price: BigInt(ethPrice),
+        listItem: listForSale,
+        creator: voucher.creator,
+        expiry: BigInt(expiryTimestamp),
+      };
+
+      console.log(unsignedVoucher);
+
       const signature = await this.contractSrv.signAuthMessage(
         unsignedVoucher,
         true
       );
 
-      const signedVoucher: SignedVoucher = {
-        ...unsignedVoucher,
-        signature,
-        name,
-        description,
-        categories,
-        isListed: listForSale,
-      };
-
       const svRes = await firstValueFrom(
-        this.nftSrv.saveVoucher(signedVoucher)
+        this.nftSrv.saveSignature(signature, voucher._id)
       );
-      if (svRes.status !== 200) throw new Error('Error saving voucher');
+
+      if (svRes.status !== 200) throw new Error('Error saving signature');
+
+      if (createAndMint) {
+        await this.nftSrv.mint({ ...voucher, signature });
+      }
 
       this.resetForm();
       this.toastr.success('NFT successfully created');

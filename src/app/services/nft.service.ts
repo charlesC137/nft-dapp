@@ -1,24 +1,24 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
   Category,
   NFT,
-  SignedVoucher,
   UnsignedVoucher,
   Voucher,
 } from '../interfaces/interfaces';
 import { firstValueFrom } from 'rxjs';
+import { ContractService } from './contract.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NftService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private contractSrv: ContractService) {}
 
   public categories!: Category[];
 
   createVoucher(form: FormData) {
-    return this.http.post<{ voucher: UnsignedVoucher }>(
+    return this.http.post<{ voucher: Voucher }>(
       '/api/nft/create-voucher',
       form,
       {
@@ -27,10 +27,14 @@ export class NftService {
     );
   }
 
-  saveVoucher(voucher: SignedVoucher) {
-    return this.http.post('/api/nft/save-voucher', voucher, {
-      observe: 'response',
-    });
+  saveSignature(signature: string, voucherId: string) {
+    return this.http.post(
+      '/api/nft/save-signature',
+      { signature, voucherId },
+      {
+        observe: 'response',
+      }
+    );
   }
 
   getNFTCategories() {
@@ -104,9 +108,16 @@ export class NftService {
   }
 
   getNFTOrVoucherDetail(id: string, type: 'nft' | 'voucher') {
+    const headers = new HttpHeaders({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+    });
+
     return this.http.get<{ item: NFT | Voucher }>('/api/nft/details', {
       params: { id, type },
       observe: 'response',
+      headers,
     });
   }
 
@@ -122,5 +133,25 @@ export class NftService {
 
   isNFT(item: NFT | Voucher) {
     return (item as NFT).tokenId !== undefined;
+  }
+
+  async mint(voucher: Voucher) {
+    try {
+      const date = new Date(voucher.expiry);
+      const unixSeconds = Math.floor(date.getTime() / 1000);
+      const expiry = BigInt(unixSeconds);
+
+      const miniVoucher: UnsignedVoucher = {
+        creator: voucher.creator,
+        uri: voucher.uri,
+        price: BigInt(voucher.price),
+        expiry,
+        listItem: false,
+      };
+
+      await this.contractSrv.mintNFT(miniVoucher, voucher.signature);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }

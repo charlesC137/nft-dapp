@@ -1,13 +1,23 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NftGridComponent } from '../../../shared-components/nft-grid/nft-grid.component';
-import { NFT, User, Voucher } from '../../../interfaces/interfaces';
+import {
+  NFT,
+  UnsignedVoucher,
+  User,
+  Voucher,
+} from '../../../interfaces/interfaces';
 import { NftService } from '../../../services/nft.service';
 import { ContractService } from '../../../services/contract.service';
 import {
+  catchError,
   combineLatest,
+  filter,
   firstValueFrom,
+  of,
+  startWith,
   Subject,
   Subscription,
+  take,
   takeUntil,
 } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -16,8 +26,9 @@ import { LoaderService } from '../../../services/loader.service';
 import { ShortenAddressPipe } from '../../../pipes/shorten-address.pipe';
 import { environment } from '../../../../environments/environment';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { UserService } from '../../../services/user.service';
+import { SocketService } from '../../../services/socket.service';
 
 @Component({
   selector: 'app-nft-detail',
@@ -39,16 +50,17 @@ export class NftDetailComponent implements OnInit, OnDestroy {
     private loaderSrv: LoaderService,
     private route: ActivatedRoute,
     private router: Router,
-    private userSrv: UserService
+    private userSrv: UserService,
+    private socketSrv: SocketService
   ) {}
 
   private destroy$ = new Subject<void>();
 
   item!: Voucher | NFT;
 
-  walletAddrSub!: Subscription;
-  walletAddr!: string;
+  onMintedSub!: Subscription;
 
+  walletAddr!: string;
   contractAddr!: string;
 
   bookmarked!: boolean;
@@ -57,6 +69,33 @@ export class NftDetailComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.contractAddr = environment.contractAddress;
 
+    this.onMintedSub = this.socketSrv.onNFTMinted().subscribe((payload) => {
+      if (payload.metadataId !== this.item.metadata._id) {
+        return;
+      }
+
+      this.destroy$.next();
+      this.destroy$ = new Subject<void>();
+
+      this.router.navigate([`/nft/${payload.nftId}`], {
+        queryParams: { type: 'nft' },
+        queryParamsHandling: 'merge',
+      });
+
+      this.router.events
+        .pipe(
+          filter((e) => e instanceof NavigationEnd),
+          take(1)
+        )
+        .subscribe(() => {
+          this.setupDataSubscription();
+        });
+    });
+
+    this.setupDataSubscription();
+  }
+
+  private setupDataSubscription() {
     combineLatest([
       this.contractSrv.walletAddress$,
       this.route.paramMap,
@@ -146,6 +185,21 @@ export class NftDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  async mint() {
+    try {
+      this.loaderSrv.show();
+      if (this.isNFT(this.item)) {
+        return console.error('Item has been minted');
+      }
+
+      await this.nftSrv.mint(this.item);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.loaderSrv.hide();
+    }
+  }
+
   isNFT(item: NFT | Voucher): item is NFT {
     return this.nftSrv.isNFT(item);
   }
@@ -157,5 +211,7 @@ export class NftDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+
+    this.onMintedSub.unsubscribe();
   }
 }

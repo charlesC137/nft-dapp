@@ -4,5 +4,5 @@ export const environment = {
   contractName: 'NFTMarketplace',
   chainID: 31337,
   version: '1',
-  rpcUrl: 'https://rpc-mumbai.maticvigil.com',
+  rpcUrl: 'http://127.0.0.1:8545/',
 };

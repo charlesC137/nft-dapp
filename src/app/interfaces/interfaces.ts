@@ -1,7 +1,20 @@
+interface Metadata {
+  _id: string;
+  name: string;
+  description: string;
+  image: string;
+  categories: [string];
+  createdAt: Date;
+  //attributes: [{ trait_type: string; value: string }];
+  itemId: string;
+}
+
 export interface UnsignedVoucher {
   creator: string;
-  price: string;
-  image: string;
+  uri: string;
+  price: BigInt;
+  expiry: BigInt;
+  listItem: boolean;
 }
 
 export interface SignedVoucher extends UnsignedVoucher {
@@ -9,7 +22,6 @@ export interface SignedVoucher extends UnsignedVoucher {
   name: string;
   categories: string[];
   description: string;
-  isListed: boolean;
 }
 
 export interface Voucher {
@@ -17,15 +29,7 @@ export interface Voucher {
   creator: string;
   owner: string;
   uri: string;
-  metadata: {
-    name: string;
-    description: string;
-    image: string;
-    categories: [string];
-    createdAt: Date;
-    //attributes: [{ trait_type: string; value: string }];
-    itemId: string;
-  };
+  metadata: Metadata;
   price: string;
   signature: string;
   isListed: boolean;
@@ -40,15 +44,7 @@ export interface NFT {
   creator: string;
   owner: string;
   uri: string;
-  metadata: {
-    name: string;
-    description: string;
-    image: string;
-    categories: [string];
-    createdAt: Date;
-    //attributes: [{ trait_type: string; value: string }];
-    itemId: string;
-  };
+  metadata: Metadata;
   price: string;
   isListed: boolean;
   createdAt: Date;
